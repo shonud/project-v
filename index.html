@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 V: 바이러스 연구소 탈출기</title>
+    <style>
+        /* --- 기본 설정 및 폰트 --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: '맑은 고딕', sans-serif; }
+        body { background-color: #0d0e15; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white; }
+        
+        /* --- 게임 화면 (16:9 비율) --- */
+        #game-container { width: 960px; height: 540px; position: relative; border: 4px solid #4a4e69; border-radius: 12px; overflow: hidden; background-color: #0f1015; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        
+        /* --- 씬(화면) 전환 설정 --- */
+        .scene { display: none; width: 100%; height: 100%; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; background-size: cover; background-position: center; position: relative; animation: fadeIn 0.5s ease-in-out; }
+        .scene.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- 내 컴퓨터(로컬) 이미지 폴더에서 배경 자동 로딩 --- */
+        #title-scene { background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('images/bg-title.jpg'); }
+        #prologue-scene { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/bg-title.jpg'); }
+        #stage1-scene { background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('images/bg-stage1.jpg'); }
+        #stage2-scene { background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('images/bg-stage2.jpg'); }
+        #stage3-scene { background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('images/bg-stage3.jpg'); }
+        #ending-scene { background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('images/bg-stage3.jpg'); }
+
+        /* --- UI 디자인 --- */
+        h1 { font-size: 3.5rem; color: #a9d6e5; text-shadow: 0 0 10px #a9d6e5; margin-bottom: 10px; }
+        h2 { font-size: 2rem; color: #89c2d9; margin-bottom: 20px; text-shadow: 0 0 5px rgba(137,194,217,0.5); }
+        .mission-box { background: rgba(0, 0, 0, 0.85); border-left: 4px solid #61a5c2; padding: 20px; border-radius: 5px; max-width: 800px; margin-bottom: 20px; font-size: 1.1rem; line-height: 1.6; border: 1px solid rgba(137,194,217,0.3); }
+        
+        /* --- 버튼 디자인 --- */
+        button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; transition: 0.2s; }
+        .start-btn { font-size: 1.5rem; background: #61a5c2; color: #fff; padding: 15px 40px; margin-top: 30px; box-shadow: 0 0 15px rgba(97,165,194,0.4); }
+        .start-btn:hover { background: #468faf; transform: scale(1.05); }
+        .choice-btn { background: #1a3a5f; color: white; padding: 12px 24px; font-size: 1.1rem; margin: 10px; border: 2px solid #3a6073; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .choice-btn:hover { background: #2a4c7e; border-color: #a9d6e5; transform: translateY(-2px); }
+        .next-btn { position: absolute; bottom: 35px; right: 8%; background: #e07a5f; color: white; padding: 12px 28px; font-size: 1.1rem; z-index: 100; border-radius: 6px; box-shadow: 0 0 15px rgba(224,122,95,0.4); animation: pulse 1.5s infinite; }
+        .concept-btn { position: absolute; top: 25px; right: 25px; background: #2a9d8f; color: white; font-size: 1rem; display: flex; align-items: center; gap: 5px; box-shadow: 0 0 10px rgba(42,157,143,0.5); }
+        .concept-btn:hover { background: #21867a; }
+        .restart-btn { background: #e63946; color: white; padding: 15px 30px; font-size: 1.2rem; border-radius: 6px; margin-top: 20px; }
+        .restart-btn:hover { background: #c12634; }
+        .hidden { display: none !important; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        /* --- 대화창 및 회색 고양이 캐릭터 (두잇) --- */
+        .dialogue-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 85%; display: flex; align-items: flex-end; gap: 15px; z-index: 50; }
+        .cat-character { width: 150px; height: auto; object-fit: contain; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 8px rgba(102, 252, 241, 0.4)); }
+        .dialogue-box { flex: 1; background: rgba(10, 15, 30, 0.95); border: 2px solid #89c2d9; border-radius: 10px; padding: 15px 20px; text-align: left; box-shadow: 0 0 20px rgba(137,194,217,0.35); height: 110px; overflow-y: auto; }
+        .npc-name { color: #a9d6e5; font-weight: bold; font-size: 1.15rem; margin-bottom: 5px; }
+        .npc-text { font-size: 0.95rem; line-height: 1.5; color: #f1f2f6; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+        /* --- 개념 설명 (연구 일지) 모달 --- */
+        .modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; }
+        .modal-content { background: #152238; width: 65%; padding: 30px; border-radius: 12px; border: 2px solid #4a90e2; text-align: left; line-height: 1.6; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-content h3 { color: #50b3f5; margin-bottom: 15px; border-bottom: 1px solid #2e4a62; padding-bottom: 10px; font-size: 1.4rem; }
+        .modal-content p { font-size: 0.95rem; color: #e1e8f0; }
+        .close-modal { position: absolute; top: 15px; right: 20px; background: #e63946; padding: 5px 10px; border-radius: 3px; color: white; font-size: 0.9rem; }
+        .close-modal:hover { background: #c12634; }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        
+        <!-- 시작 화면 -->
+        <div id="title-scene" class="scene active">
+            <h1>PROJECT V</h1>
+            <p class="subtitle">바이러스 연구소 탈출기</p>
+            <button class="start-btn" onclick="nextScene('prologue-scene')">시스템 보안 접속</button>
+        </div>
+
+        <!-- 프롤로그 -->
+        <div id="prologue-scene" class="scene">
+            <div class="dialogue-container">
+                <!-- 내 컴퓨터 폴더에서 이미지 불러오기 -->
+                <img src="images/cat-warning.png" alt="AI 두잇" class="cat-character">
+                <div class="dialogue-box">
+                    <p class="npc-name">AI 두잇 (DoIt) <span style="font-size:0.8rem; background:#ff4757; padding:2px 6px; border-radius:3px; margin-left:5px;">비상 상황</span></p>
+                    <p class="npc-text">"경고. A.Q.U.A 연구소 내 고위험 병원체 유출 감지. <br>전 구역이 차단되었습니다. 수석 연구원님, 신속히 백신을 개발하여 탈출하고 생태계 붕괴를 막아야 합니다."</p>
+                </div>
+            </div>
+            <button class="next-btn" onclick="nextScene('stage1-scene')">B1 서버실로 이동</button>
+        </div>
+
+        <!-- 스테이지 1: 생명 시스템 (유전 정보) -->
+        <div id="stage1-scene" class="scene">
+            <button class="concept-btn" onclick="openModal('modal-stage1')">📖 연구 일지</button>
+            <h2>B1 보안 서버실</h2>
+            <div class="mission-box">
+                <b>[생명 시스템의 정보 흐름]</b><br>
+                미지의 DNA 염기서열 <span style="color:#ffd23f; font-family:monospace; font-weight:bold;">[ T - A - C - G ]</span>가 발견되었습니다.<br>보안 시스템을 해제하려면 이 유전 정보를 RNA로 올바르게 <b>전사(Transcription)</b>해야 합니다.
+            </div>
+            <div>
+                <button class="choice-btn" onclick="checkStage1('wrong')">A - T - G - C 입력</button>
+                <button class="choice-btn" onclick="checkStage1('correct')">A - U - G - C 입력</button>
+            </div>
+            <div class="dialogue-container">
+                <img id="cat-stage1" src="images/cat-analyze.png" alt="AI 두잇" class="cat-character">
+                <div class="dialogue-box">
+                    <p class="npc-name">AI 두잇 (DoIt)</p>
+                    <p id="text-stage1" class="npc-text">"우측 상단의 '연구 일지'를 확인하여 RNA 염기 결합 규칙을 확인하십시오."</p>
+                </div>
+            </div>
+            <button id="next-stage1" class="next-btn hidden" onclick="nextScene('stage2-scene')">B2 실험실로 이동</button>
+        </div>
+
+        <!-- 스테이지 2: 화학 변화 (산화 환원) -->
+        <div id="stage2-scene" class="scene">
+            <button class="concept-btn" onclick="openModal('modal-stage2')">📖 연구 일지</button>
+            <h2>B2 백신 합성 실험실</h2>
+            <div class="mission-box">
+                <b>[화학 변화와 에너지 출입]</b><br>
+                백신을 담을 무균 앰플을 만들기 위해 질산 은(AgNO₃) 수용액에 구리(Cu)선을 넣었습니다. <br>반응이 일어날 때, <b>전자를 잃고 "산화"되는 물질</b>은 무엇입니까?
+            </div>
+            <div>
+                <button class="choice-btn" onclick="checkStage2('correct')">구리 (Cu)</button>
+                <button class="choice-btn" onclick="checkStage2('wrong')">은 이온 (Ag⁺)</button>
+            </div>
+            <div class="dialogue-container">
+                <img id="cat-stage2" src="images/cat-default.png" alt="AI 두잇" class="cat-character">
+                <div class="dialogue-box">
+                    <p class="npc-name">AI 두잇 (DoIt)</p>
+                    <p id="text-stage2" class="npc-text">"금속의 반응성을 고려하십시오. 구리는 은보다 이온이 되려는 경향(반응성)이 훨씬 큽니다."</p>
+                </div>
+            </div>
+            <button id="next-stage2" class="next-btn hidden" onclick="nextScene('stage3-scene')">B3 통제실로 이동</button>
+        </div>
+
+        <!-- 스테이지 3: 생물다양성과 지질 시대 (자연선택) -->
+        <div id="stage3-scene" class="scene">
+            <button class="concept-btn" onclick="openModal('modal-stage3')">📖 연구 일지</button>
+            <h2>B3 최고 보안 통제실</h2>
+            <div class="mission-box">
+                <b>[지질 시대의 환경 변화와 생물다양성]</b><br>
+                연구소 내부 환경이 과거 지질 시대의 대멸종 시기처럼 급변했습니다. <br>방역 속에서 살아남은 일부 병원체가 <b>자연선택</b>되어 강력한 내성 변이로 진화하고 있습니다. <br>더 큰 전파를 막을 최종 대응 방안을 결재하십시오.
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <button class="choice-btn" style="width: 80%; text-align:left;" onclick="showEnding('A')">A. 실물 바이러스 전량 폐기 및 해독 데이터(DSI) 기반 억제제 제작 (안전 최우선)</button>
+                <button class="choice-btn" style="width: 80%; text-align:left;" onclick="showEnding('B')">B. 내성 바이러스 실물 영구 격리 보존 및 후속 변이 연구 착수 (과학 연구 가치 최우선)</button>
+            </div>
+            <div class="dialogue-container">
+                <img src="images/cat-analyze.png" alt="AI 두잇" class="cat-character">
+                <div class="dialogue-box">
+                    <p class="npc-name">AI 두잇 (DoIt)</p>
+                    <p class="npc-text">"가혹한 약물 환경에 적합한 개체들이 살아남는 '자연선택'이 발생했습니다. 수석 연구원님의 윤리적 판단이 필요합니다."</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 엔딩 화면 -->
+        <div id="ending-scene" class="scene">
+            <h2 id="ending-title" style="font-size: 2.5rem; color: #ffd166;"></h2>
+            <div id="ending-text" class="mission-box" style="font-size: 1.15rem; max-width: 850px;"></div>
+            <div class="dialogue-container">
+                <img src="images/cat-success.png" alt="AI 두잇" class="cat-character">
+                <div class="dialogue-box">
+                    <p class="npc-name">AI 두잇 (DoIt)</p>
+                    <p class="npc-text">"모든 시스템 안정화 완료. 연구원님의 선택은 향후 인류 생명과학 발전과 안전에 거대한 이정표로 기록될 것입니다."</p>
+                </div>
+            </div>
+            <button class="restart-btn" onclick="location.reload()">처음으로 돌아가기</button>
+        </div>
+
+        <!-- === 개념 설명 모달창들 === -->
+        <div id="modal-stage1" class="modal-overlay">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeModal('modal-stage1')">X 닫기</button>
+                <h3>📌 유전 정보의 흐름 (전사)</h3>
+                <p style="margin-bottom:10px;">생명체 내에서 DNA의 유전 정보는 RNA를 거쳐 단백질로 합성됩니다.<br>DNA의 특정 염기 서열을 복사하여 RNA를 만드는 과정을 <b>전사(Transcription)</b>라고 합니다.</p>
+                <p><b>[상보적 결합 규칙]</b><br>DNA 아데닌(A) → RNA 우라실(U) (※ RNA는 티민 T가 없음)<br>DNA 티민(T) → RNA 아데닌(A)<br>DNA 구아닌(G) ↔ RNA 사이토신(C)<br><br>따라서 <b>T - A - C - G</b>에 보완적인 RNA 서열은 <b>A - U - G - C</b>가 됩니다.</p>
+            </div>
+        </div>
+        <div id="modal-stage2" class="modal-overlay">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeModal('modal-stage2')">X 닫기</button>
+                <h3>📌 전자의 이동과 산화·환원</h3>
+                <p style="margin-bottom:10px;">화학 반응 시 전자를 잃고 얻는 현상입니다. 산화와 환원은 항상 <b>동시</b>에 일어납니다.</p>
+                <p>• <b>산화 (Oxidation):</b> 물질이 전자를 <b>잃는</b> 반응<br>• <b>환원 (Reduction):</b> 물질이 전자를 <b>얻는</b> 반응<br><br>구리(Cu)는 은(Ag)보다 전자를 잃고 이온이 되려는 성향(이온화 경향)이 강합니다. <br>수용액에 구리를 넣으면 구리선은 전자를 잃고 <b>산화</b>되어 구리 이온($Cu^{2+}$)이 되고, 수용액의 은 이온($Ag^+$)은 그 전자를 얻어 <b>환원</b>되어 구리선 표면에 은으로 반짝이며 달라붙습니다.</p>
+            </div>
+        </div>
+        <div id="modal-stage3" class="modal-overlay">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeModal('modal-stage3')">X 닫기</button>
+                <h3>📌 지질 시대의 환경 변화와 자연선택</h3>
+                <p style="margin-bottom:10px;">지구 역사(지질 시대) 속 대륙 이동, 빙하기 등의 갑작스러운 환경 변화는 생태계를 급변시키고 대멸종을 유도했습니다. 이 과정은 새로운 생물의 등장을 이끄는 진화의 원동력이 되었습니다.</p>
+                <p>• <b>변이:</b> 같은 생물 종이라도 개체마다 가지는 형질의 차이 (예: 약물 내성의 유무)<br>• <b>자연선택:</b> 다양한 변이를 가진 개체들 중, 환경에 살아남기 유리한 형질을 가진 개체가 더 많이 살아남아 자손을 남기는 과정.<br><br>가혹한 방제 환경 속에서 내성을 가진 일부 바이러스만 살아남아 자손을 퍼뜨린 것 역시 현대의 '자연선택' 현상입니다.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 씬 전환 로직
+        function nextScene(sceneId) {
+            document.querySelectorAll('.scene').forEach(scene => scene.classList.remove('active'));
+            document.getElementById(sceneId).classList.add('active');
+        }
+
+        // 모달창 제어 로직
+        function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
+        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+
+        // 스테이지 1 퀴즈 확인
+        function checkStage1(answer) {
+            const text = document.getElementById('text-stage1');
+            const cat = document.getElementById('cat-stage1');
+            if (answer === 'correct') {
+                cat.src = 'images/cat-success.png';
+                text.innerHTML = "<span style='color:#a9d6e5'>[암호 해독 성공!]</span> 완벽합니다. RNA에는 티민(T)이 없고 우라실(U)이 DNA의 아데닌(A)과 결합합니다. B1 보안 서버가 해제되었습니다.";
+                document.getElementById('next-stage1').classList.remove('hidden');
+            } else {
+                cat.src = 'images/cat-warning.png';
+                text.innerHTML = "<span style='color:#ff4757'>[전사 실패]</span> 경고! 아데닌(A)에 결합하는 RNA 염기는 티민(T)이 아닙니다. 연구 일지의 '상보적 규칙'을 다시 읽어보세요.";
+            }
+        }
+
+        // 스테이지 2 퀴즈 확인
+        function checkStage2(answer) {
+            const text = document.getElementById('text-stage2');
+            const cat = document.getElementById('cat-stage2');
+            if (answer === 'correct') {
+                cat.src = 'images/cat-success.png';
+                text.innerHTML = "<span style='color:#a9d6e5'>[화학 반응 성공]</span> 아주 훌륭합니다! 구리(Cu)가 전자를 잃고 산화되면서 질산 은 수용액에서 은($Ag$)을 성공적으로 환원(석출)시켰습니다. 앰플 밀봉 성공!";
+                document.getElementById('next-stage2').classList.remove('hidden');
+            } else {
+                cat.src = 'images/cat-warning.png';
+                text.innerHTML = "<span style='color:#ff4757'>[실험 오류]</span> 은 이온($Ag^+$)은 구리가 방출한 전자를 받아들여 은($Ag$) 금속으로 환원됩니다. 전자를 '잃는' 산화 대상을 다시 고르세요.";
+            }
+        }
+
+        // 스테이지 3 분기 및 엔딩
+        function showEnding(choice) {
+            const title = document.getElementById('ending-title');
+            const text = document.getElementById('ending-text');
+            
+            if (choice === 'A') {
+                title.innerHTML = "엔딩 A: 생태계 평형의 수호자";
+                text.innerHTML = "당신은 위험 부담을 차단하고 <b>생태계 안정성</b>을 최우선으로 선택했습니다.<br><br>자연선택을 통해 강력해진 변이 바이러스의 원본을 완전히 파괴함으로써, 향후 발생할지 모르는 2차 대규모 유출의 가능성을 원천 봉쇄했습니다. 대신 복구된 디지털 염기서열 데이터(DSI)만을 사용한 가상 컴퓨터 시뮬레이션 기술로 전 세계 연구 기구들과 협력하여 새로운 안전 방역의 표준을 세웠습니다. 안전을 지켜낸 공로로 상을 받게 되었습니다.";
+            } else {
+                title.innerHTML = "엔딩 B: 미래 진보의 선구자";
+                text.innerHTML = "당신은 <b>과학적 가치와 잠재력</b>을 최우선으로 선택했습니다.<br><br>자연선택을 거치며 엄청난 환경 적응력을 획득한 고위험 내성 바이러스를 최고 위험물 격리소에 영구 보존하기로 결정했습니다. 비록 기지 내에 잠재적 유출 가능성의 긴장감은 계속 남게 되었지만, 몇 년 뒤 이 실물 샘플의 생존력을 분석하여 미래의 변종 전염병을 막을 수 있는 초강력 치료제가 개발되는 쾌거를 이루었습니다. 역사에 남을 혁신적인 연구로 기록되었습니다.";
+            }
+            nextScene('ending-scene');
+        }
+    </script>
+</body>
+</html>
