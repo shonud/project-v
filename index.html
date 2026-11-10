@@ -24,12 +24,11 @@
         h1 { font-size: 3.5rem; color: #66fcf1; text-shadow: 0 0 15px #66fcf1; margin-bottom: 10px; }
         h2 { font-size: 1.8rem; color: #45a29e; margin-bottom: 10px; text-shadow: 0 0 5px rgba(69,162,158,0.5); }
         
-        /* 🚨 핵심 수정: 글 상자 최대 높이(max-height) 및 스크롤(overflow-y) 추가 */
+        /* 스크롤이 적용된 글 상자 */
         .content-box { background: rgba(11, 12, 16, 0.9); border-left: 5px solid #66fcf1; padding: 20px; border-radius: 8px; width: 90%; margin-bottom: 10px; font-size: 1rem; line-height: 1.6; box-shadow: 0 5px 15px rgba(0,0,0,0.5); text-align: left; max-height: 250px; overflow-y: auto; }
         .content-box h3 { color: #66fcf1; border-bottom: 1px solid #45a29e; padding-bottom: 8px; margin-bottom: 12px; font-size: 1.2rem; }
         .highlight { color: #ffea00; font-weight: bold; }
         
-        /* 스크롤바 디자인 */
         .content-box::-webkit-scrollbar { width: 8px; }
         .content-box::-webkit-scrollbar-thumb { background: #45a29e; border-radius: 4px; }
         .content-box::-webkit-scrollbar-track { background: #1f2833; }
@@ -43,12 +42,21 @@
         
         .hidden { display: none !important; }
 
-        /* 캐릭터 및 대화창 크기 조정 */
+        /* 평상시 작은 캐릭터 및 대화창 */
         .dialogue-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 90%; display: flex; align-items: flex-end; gap: 15px; z-index: 50; }
         .cat-character { width: 130px; height: auto; animation: float 3s ease-in-out infinite; }
         .dialogue-box { flex: 1; background: rgba(31, 40, 51, 0.95); border: 2px solid #45a29e; border-radius: 8px; padding: 12px 18px; text-align: left; height: 100px; overflow-y: auto; }
         .npc-name { color: #66fcf1; font-weight: bold; font-size: 1.05rem; margin-bottom: 5px; }
         .npc-text { font-size: 0.9rem; line-height: 1.4; color: #fff; }
+
+        /* 🚨 추가된 기능: 클리어 시 전체화면 연출 (캐릭터 크게) */
+        #clear-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 100; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; padding-bottom: 30px; }
+        #clear-overlay.show { opacity: 1; pointer-events: auto; }
+        .large-cat { height: 350px; width: auto; margin-bottom: -15px; z-index: 101; animation: float 3s ease-in-out infinite; }
+        .clear-dialogue { width: 90%; background: rgba(31, 40, 51, 0.95); border: 3px solid #ffea00; border-radius: 12px; padding: 25px; z-index: 102; box-shadow: 0 0 25px rgba(255,234,0,0.3); text-align: left; }
+        .clear-dialogue h3 { color: #ffea00; font-size: 1.4rem; margin-bottom: 12px; }
+        .clear-dialogue p { font-size: 1.1rem; line-height: 1.6; color: #fff; }
+        
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
     </style>
 </head>
@@ -83,6 +91,7 @@
                 <button class="choice-btn" onclick="checkStage1('correct')">▶ RNA 합성: A - U - G - C</button>
             </div>
 
+            <!-- 평상시 대화창 -->
             <div class="dialogue-container">
                 <img id="cat-stage1" src="images/cat-analyze.png" alt="AI 두잇" class="cat-character">
                 <div class="dialogue-box">
@@ -90,7 +99,6 @@
                     <p id="text-stage1" class="npc-text">"병원체 유출로 B1 구역이 폐쇄되었습니다. 데이터 칩의 DNA 염기 서열을 전사하여 보안을 해제하십시오."</p>
                 </div>
             </div>
-            <button id="next-stage1" class="action-btn hidden" style="position: absolute; bottom: 130px;" onclick="nextScene('stage2-scene')">B2 실험실로 이동</button>
         </div>
 
         <!-- 스테이지 2: 산화 환원 반응 -->
@@ -121,7 +129,6 @@
                     <p id="text-stage2" class="npc-text">"백신 앰플을 안전하게 밀봉해야 합니다. 화학 반응에서 전자를 뺏고 뺏기는 금속의 반응성을 계산하십시오."</p>
                 </div>
             </div>
-            <button id="next-stage2" class="action-btn hidden" style="position: absolute; bottom: 130px;" onclick="nextScene('stage3-scene')">B3 통제실로 이동</button>
         </div>
 
         <!-- 스테이지 3: 생물다양성 -->
@@ -159,11 +166,23 @@
             <div class="dialogue-container">
                 <img src="images/cat-success.png" alt="AI 두잇" class="cat-character">
                 <div class="dialogue-box">
-                    <p class="npc-name">AI 두잇 (DoIt)</p>
-                    <p class="npc-text">"연구원님의 훌륭한 개념 분석과 결단 덕분에 위기를 넘겼습니다. A.Q.U.A 시스템을 정상 종료합니다."</p>
+                    <p class="npc-name">AI 두잇 (DoIt) <span style="color:#ffea00; font-size:0.8rem;">[시스템 종료]</span></p>
+                    <p class="npc-text">"연구원님의 훌륭한 통찰력과 결단 덕분에 위기를 넘겼습니다. A.Q.U.A 시스템을 안전하게 종료합니다. 수고하셨습니다!"</p>
                 </div>
             </div>
             <button class="action-btn" style="position: absolute; bottom: 140px;" onclick="location.reload()">처음부터 다시 연구하기</button>
+        </div>
+
+        <!-- 🚨 정답 연출용 클리어 오버레이 (캐릭터 크게 등장) -->
+        <div id="clear-overlay">
+            <img src="images/cat-success.png" alt="AI 두잇 정답" class="large-cat">
+            <div class="clear-dialogue">
+                <h3>AI 두잇 (DoIt)</h3>
+                <p id="clear-overlay-text"></p>
+                <div style="text-align: right; margin-top: 15px;">
+                    <button id="clear-overlay-btn" class="action-btn" style="background: #ffea00; color: #000; box-shadow: 0 0 15px rgba(255,234,0,0.5);">다음 구역으로 이동 ▶</button>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -179,29 +198,37 @@
             document.getElementById(stage + '-quiz').classList.remove('hidden');
         }
 
+        // 전체화면 클리어 연출 띄우기 함수
+        function showClearScreen(text, nextSceneId) {
+            document.getElementById('clear-overlay-text').innerHTML = text;
+            const overlay = document.getElementById('clear-overlay');
+            overlay.classList.add('show');
+            
+            // 다음 버튼을 누르면 오버레이가 사라지고 다음 씬으로 이동
+            document.getElementById('clear-overlay-btn').onclick = function() {
+                overlay.classList.remove('show');
+                setTimeout(() => nextScene(nextSceneId), 300); // 부드러운 화면 전환 대기
+            };
+        }
+
         function checkStage1(answer) {
-            const text = document.getElementById('text-stage1');
-            const cat = document.getElementById('cat-stage1');
             if (answer === 'correct') {
-                cat.src = 'images/cat-success.png';
-                text.innerHTML = "<span style='color:#66fcf1'>[해독 완료]</span> RNA에는 티민(T) 대신 우라실(U)이 결합합니다! 보안 서버 개방.";
-                document.getElementById('next-stage1').classList.remove('hidden');
+                const successMsg = "훌륭합니다, 수석 연구원님! 완벽한 해독입니다.<br>DNA의 <b>'아데닌(A)'</b>에는 티민(T) 대신 <b>'우라실(U)'</b>이 짝을 이룬다는 상보적 결합 규칙을 정확히 적용하셨군요. 이로써 전사(Transcription) 과정이 완료되어 굳게 닫혀있던 보안 서버가 개방되었습니다!<br><br>자, 바이러스 확산을 막기 위한 백신 코팅 작업이 기다리고 있습니다. B2 백신 합성 실험실로 신속히 이동해 볼까요?";
+                showClearScreen(successMsg, 'stage2-scene');
             } else {
-                cat.src = 'images/cat-warning.png';
-                text.innerHTML = "<span style='color:#ff4757'>[전사 오류]</span> RNA에는 티민(T)이 존재하지 않습니다. 상보적 결합의 규칙을 다시 확인하십시오.";
+                // 오답일 때는 작은 경고창 유지
+                document.getElementById('cat-stage1').src = 'images/cat-warning.png';
+                document.getElementById('text-stage1').innerHTML = "<span style='color:#ff4757'>[전사 오류!]</span> 치명적인 오류입니다. RNA에는 티민(T)이 존재하지 않습니다. 아데닌(A)과 짝을 이루는 RNA 염기가 무엇인지 다시 떠올려 보십시오.";
             }
         }
 
         function checkStage2(answer) {
-            const text = document.getElementById('text-stage2');
-            const cat = document.getElementById('cat-stage2');
             if (answer === 'correct') {
-                cat.src = 'images/cat-success.png';
-                text.innerHTML = "<span style='color:#66fcf1'>[반응 완료]</span> 정확합니다. 구리(Cu)가 전자를 잃고 산화되어 푸른색 이온이 되고, 은은 환원되었습니다.";
-                document.getElementById('next-stage2').classList.remove('hidden');
+                const successMsg = "정확합니다! 화학 반응의 핵심을 완벽히 꿰뚫어 보셨네요.<br>반응성이 더 큰 <b>구리(Cu)가 스스로 전자를 내어놓고 '산화'</b>되면서 수용액이 푸르게 변하고, 그 전자를 받은 은 이온이 환원되어 앰플 표면에 성공적으로 무균 코팅을 형성했습니다!<br><br>산화와 환원이 동시에 일어나는 원리를 이용한 완벽한 조치입니다. 이제 최종 결재가 기다리는 B3 최고 보안 통제실로 향할 시간입니다.";
+                showClearScreen(successMsg, 'stage3-scene');
             } else {
-                cat.src = 'images/cat-warning.png';
-                text.innerHTML = "<span style='color:#ff4757'>[실험 실패]</span> 은 이온($Ag^+$)은 구리가 내어놓은 전자를 '얻어서' 환원되는 물질입니다.";
+                document.getElementById('cat-stage2').src = 'images/cat-warning.png';
+                document.getElementById('text-stage2').innerHTML = "<span style='color:#ff4757'>[실험 실패!]</span> 은 이온($Ag^+$)은 구리가 내어놓은 전자를 '얻어서' 환원되는 물질입니다. 누가 전자를 잃고 산화되는지 이온화 경향을 다시 계산하십시오.";
             }
         }
 
