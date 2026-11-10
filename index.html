@@ -16,6 +16,7 @@
 
         /* 배경 이미지 */
         #title-scene { background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('images/bg-title.jpg'); justify-content: center; }
+        #intro-scene { background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('images/bg-title.jpg'); justify-content: center; }
         #stage1-scene { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/bg-stage1.jpg'); }
         #stage2-scene { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/bg-stage2.jpg'); }
         #stage3-scene { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/bg-stage3.jpg'); }
@@ -24,6 +25,13 @@
         h1 { font-size: 3.5rem; color: #66fcf1; text-shadow: 0 0 15px #66fcf1; margin-bottom: 10px; }
         h2 { font-size: 1.8rem; color: #45a29e; margin-bottom: 10px; text-shadow: 0 0 5px rgba(69,162,158,0.5); }
         
+        /* 🚨 오프닝 스토리 박스 */
+        .intro-box { background: rgba(11, 12, 16, 0.9); border: 2px solid #45a29e; padding: 30px; border-radius: 8px; width: 85%; font-size: 1.1rem; line-height: 1.8; text-align: center; margin-bottom: 25px; box-shadow: 0 0 20px rgba(69,162,158,0.3); }
+        
+        /* 🚨 공간 이동(트랜지션) 박스 */
+        .transition-box { background: rgba(11, 12, 16, 0.95); border: 3px solid #66fcf1; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 0 30px rgba(102,252,241,0.4); margin-top: 120px; }
+        .transition-box h2 { font-size: 2.5rem; color: #fff; margin-bottom: 25px; text-shadow: 0 0 10px #66fcf1; }
+
         /* 스크롤이 적용된 글 상자 */
         .content-box { background: rgba(11, 12, 16, 0.9); border-left: 5px solid #66fcf1; padding: 20px; border-radius: 8px; width: 90%; margin-bottom: 10px; font-size: 1rem; line-height: 1.6; box-shadow: 0 5px 15px rgba(0,0,0,0.5); text-align: left; max-height: 250px; overflow-y: auto; }
         .content-box h3 { color: #66fcf1; border-bottom: 1px solid #45a29e; padding-bottom: 8px; margin-bottom: 12px; font-size: 1.2rem; }
@@ -33,7 +41,7 @@
         .content-box::-webkit-scrollbar-thumb { background: #45a29e; border-radius: 4px; }
         .content-box::-webkit-scrollbar-track { background: #1f2833; }
         
-        button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; transition: 0.2s; font-size: 1rem; }
+        button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; transition: 0.2s; font-size: 1.05rem; }
         .action-btn { background: #66fcf1; color: #0b0c10; margin-top: 10px; box-shadow: 0 0 10px rgba(102,252,241,0.3); }
         .action-btn:hover { background: #45a29e; transform: scale(1.05); }
         
@@ -42,20 +50,20 @@
         
         .hidden { display: none !important; }
 
-        /* 평상시 작은 캐릭터 및 대화창 */
+        /* 평상시 대화창 */
         .dialogue-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 90%; display: flex; align-items: flex-end; gap: 15px; z-index: 50; }
         .cat-character { width: 130px; height: auto; animation: float 3s ease-in-out infinite; }
         .dialogue-box { flex: 1; background: rgba(31, 40, 51, 0.95); border: 2px solid #45a29e; border-radius: 8px; padding: 12px 18px; text-align: left; height: 100px; overflow-y: auto; }
         .npc-name { color: #66fcf1; font-weight: bold; font-size: 1.05rem; margin-bottom: 5px; }
         .npc-text { font-size: 0.9rem; line-height: 1.4; color: #fff; }
 
-        /* 🚨 추가된 기능: 클리어 시 전체화면 연출 (캐릭터 크게) */
-        #clear-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 100; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; padding-bottom: 30px; }
+        /* 🚨 수정된 클리어 화면 (캐릭터 짤림 방지 및 중앙 정렬) */
+        #clear-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; padding: 20px; }
         #clear-overlay.show { opacity: 1; pointer-events: auto; }
-        .large-cat { height: 350px; width: auto; margin-bottom: -15px; z-index: 101; animation: float 3s ease-in-out infinite; }
-        .clear-dialogue { width: 90%; background: rgba(31, 40, 51, 0.95); border: 3px solid #ffea00; border-radius: 12px; padding: 25px; z-index: 102; box-shadow: 0 0 25px rgba(255,234,0,0.3); text-align: left; }
-        .clear-dialogue h3 { color: #ffea00; font-size: 1.4rem; margin-bottom: 12px; }
-        .clear-dialogue p { font-size: 1.1rem; line-height: 1.6; color: #fff; }
+        .large-cat { height: 200px; width: auto; margin-bottom: 15px; z-index: 101; animation: float 3s ease-in-out infinite; }
+        .clear-dialogue { width: 85%; background: rgba(31, 40, 51, 0.95); border: 3px solid #ffea00; border-radius: 12px; padding: 20px; z-index: 102; box-shadow: 0 0 25px rgba(255,234,0,0.3); text-align: left; }
+        .clear-dialogue h3 { color: #ffea00; font-size: 1.3rem; margin-bottom: 10px; }
+        .clear-dialogue p { font-size: 1.05rem; line-height: 1.5; color: #fff; max-height: 120px; overflow-y: auto; }
         
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
     </style>
@@ -63,11 +71,32 @@
 <body>
     <div id="game-container">
         
-        <!-- 시작 화면 -->
+        <!-- 1. 시작 화면 -->
         <div id="title-scene" class="scene active">
             <h1>PROJECT V</h1>
             <p style="font-size: 1.5rem; color: #45a29e; margin-bottom: 40px;">바이러스 연구소 탈출기</p>
-            <button class="action-btn" onclick="nextScene('stage1-scene')">A.Q.U.A 시스템 접속</button>
+            <button class="action-btn" onclick="nextScene('intro-scene')">A.Q.U.A 시스템 접속</button>
+        </div>
+
+        <!-- 2. 오프닝 스토리 화면 -->
+        <div id="intro-scene" class="scene">
+            <div class="intro-box">
+                <h3 style="color: #ffea00; font-size: 1.5rem; margin-bottom: 15px;">2180년, 해저 3,000m 바이러스 연구소</h3>
+                <p>평화롭던 어느 날, 원인 불명의 시스템 오류로 인해 1급 격리 구역에 보관 중이던<br>
+                <span class="highlight">'고위험성 내성 바이러스'</span>가 연구소 내부에 유출되었다.<br><br>
+                기지의 모든 출입문은 전면 폐쇄되었고, 이대로 바이러스가 바다로 퍼진다면<br>전 지구적인 대멸종이 일어날 수 있다. 외부 구조대가 도착하기 전,<br>수석 연구원인 당신은 보조 AI <b>'두잇(DoIt)'</b>과 함께 흩어진 과학적 단서들을 조합해야 한다.<br><br>
+                유전 정보 해독(생명), 백신 코팅(화학), 그리고 생명 윤리적 결단(진화)을 거쳐<br>이 연구소를 무사히 통제하고 탈출하라!</p>
+            </div>
+            <button class="action-btn" onclick="showTransition('stage1-scene', 'images/bg-stage1.jpg', 'B1 보안 서버실')">탈출 작전 시작하기</button>
+        </div>
+
+        <!-- 🚨 3. 공간 이동 연출 화면 (공통 사용) -->
+        <div id="transition-scene" class="scene">
+            <div class="transition-box">
+                <p style="color: #45a29e; font-size: 1.2rem; margin-bottom: 10px;">다음 진입 구역</p>
+                <h2 id="trans-title">공간 이름</h2>
+                <button class="action-btn" id="trans-btn" onclick="enterStage()" style="font-size: 1.2rem; padding: 12px 30px;">▶ 이 구역으로 이동하기</button>
+            </div>
         </div>
 
         <!-- 스테이지 1: 생명 시스템 -->
@@ -91,7 +120,6 @@
                 <button class="choice-btn" onclick="checkStage1('correct')">▶ RNA 합성: A - U - G - C</button>
             </div>
 
-            <!-- 평상시 대화창 -->
             <div class="dialogue-container">
                 <img id="cat-stage1" src="images/cat-analyze.png" alt="AI 두잇" class="cat-character">
                 <div class="dialogue-box">
@@ -146,8 +174,8 @@
             <div id="stage3-quiz" class="content-box hidden" style="text-align: center;">
                 <h3>최종 사태 대응 결재</h3>
                 <p style="margin-bottom: 15px;">자연선택을 통해 강력해진 이 내성 바이러스 실물 원본을 어떻게 처리하시겠습니까?</p>
-                <button class="choice-btn" onclick="showEnding('A')">▶ 선택 A: 원본을 완전히 폐기하고 디지털 데이터만 남긴다. (생태계 보전)</button>
-                <button class="choice-btn" onclick="showEnding('B')">▶ 선택 B: 최고 보안 구역에 실물 원본을 영구 격리 보존한다. (미래 연구 가치)</button>
+                <button class="choice-btn" onclick="showEnding('A')">▶ 선택 A: 원본을 폐기하고 디지털 데이터만 남긴다. (생태계 보전)</button>
+                <button class="choice-btn" onclick="showEnding('B')">▶ 선택 B: 최고 보안 구역에 실물을 영구 보존한다. (미래 연구 가치)</button>
             </div>
 
             <div class="dialogue-container">
@@ -170,17 +198,17 @@
                     <p class="npc-text">"연구원님의 훌륭한 통찰력과 결단 덕분에 위기를 넘겼습니다. A.Q.U.A 시스템을 안전하게 종료합니다. 수고하셨습니다!"</p>
                 </div>
             </div>
-            <button class="action-btn" style="position: absolute; bottom: 140px;" onclick="location.reload()">처음부터 다시 연구하기</button>
+            <button class="action-btn" style="position: absolute; bottom: 130px;" onclick="location.reload()">처음부터 다시 연구하기</button>
         </div>
 
-        <!-- 🚨 정답 연출용 클리어 오버레이 (캐릭터 크게 등장) -->
+        <!-- 정답 연출 오버레이 -->
         <div id="clear-overlay">
             <img src="images/cat-success.png" alt="AI 두잇 정답" class="large-cat">
             <div class="clear-dialogue">
                 <h3>AI 두잇 (DoIt)</h3>
                 <p id="clear-overlay-text"></p>
                 <div style="text-align: right; margin-top: 15px;">
-                    <button id="clear-overlay-btn" class="action-btn" style="background: #ffea00; color: #000; box-shadow: 0 0 15px rgba(255,234,0,0.5);">다음 구역으로 이동 ▶</button>
+                    <button id="clear-overlay-btn" class="action-btn" style="background: #ffea00; color: #000; box-shadow: 0 0 15px rgba(255,234,0,0.5);">다음으로 ▶</button>
                 </div>
             </div>
         </div>
@@ -188,6 +216,8 @@
     </div>
 
     <script>
+        let currentTargetStage = ''; // 이동할 다음 스테이지 저장용
+
         function nextScene(sceneId) {
             document.querySelectorAll('.scene').forEach(scene => scene.classList.remove('active'));
             document.getElementById(sceneId).classList.add('active');
@@ -198,25 +228,38 @@
             document.getElementById(stage + '-quiz').classList.remove('hidden');
         }
 
-        // 전체화면 클리어 연출 띄우기 함수
-        function showClearScreen(text, nextSceneId) {
+        // 🚨 공간 이동(트랜지션) 화면 띄우기
+        function showTransition(stageId, bgUrl, stageName) {
+            const transScene = document.getElementById('transition-scene');
+            transScene.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('${bgUrl}')`;
+            document.getElementById('trans-title').innerText = stageName;
+            currentTargetStage = stageId;
+            nextScene('transition-scene');
+        }
+
+        // 🚨 실제 스테이지로 진입
+        function enterStage() {
+            nextScene(currentTargetStage);
+        }
+
+        // 정답을 맞췄을 때 띄우는 화면 (클리어 후 다음 구역 정보 전달)
+        function showClearScreen(text, nextStageId, nextBgUrl, nextStageName) {
             document.getElementById('clear-overlay-text').innerHTML = text;
             const overlay = document.getElementById('clear-overlay');
             overlay.classList.add('show');
             
-            // 다음 버튼을 누르면 오버레이가 사라지고 다음 씬으로 이동
             document.getElementById('clear-overlay-btn').onclick = function() {
                 overlay.classList.remove('show');
-                setTimeout(() => nextScene(nextSceneId), 300); // 부드러운 화면 전환 대기
+                // 0.3초 뒤에 공간 이동 화면(트랜지션)으로 연결
+                setTimeout(() => showTransition(nextStageId, nextBgUrl, nextStageName), 300);
             };
         }
 
         function checkStage1(answer) {
             if (answer === 'correct') {
-                const successMsg = "훌륭합니다, 수석 연구원님! 완벽한 해독입니다.<br>DNA의 <b>'아데닌(A)'</b>에는 티민(T) 대신 <b>'우라실(U)'</b>이 짝을 이룬다는 상보적 결합 규칙을 정확히 적용하셨군요. 이로써 전사(Transcription) 과정이 완료되어 굳게 닫혀있던 보안 서버가 개방되었습니다!<br><br>자, 바이러스 확산을 막기 위한 백신 코팅 작업이 기다리고 있습니다. B2 백신 합성 실험실로 신속히 이동해 볼까요?";
-                showClearScreen(successMsg, 'stage2-scene');
+                const successMsg = "정답입니다, 수석 연구원님! 완벽한 해독입니다.<br>DNA의 <b>'아데닌(A)'</b>에는 티민(T) 대신 <b>'우라실(U)'</b>이 짝을 이룬다는 상보적 결합 규칙을 정확히 적용하셨군요. 전사가 완료되어 보안 서버가 개방되었습니다!<br><br>자, 바이러스 확산을 막기 위한 백신 코팅 작업이 기다리고 있습니다. 다음 구역으로 신속히 이동할까요?";
+                showClearScreen(successMsg, 'stage2-scene', 'images/bg-stage2.jpg', 'B2 백신 합성 실험실');
             } else {
-                // 오답일 때는 작은 경고창 유지
                 document.getElementById('cat-stage1').src = 'images/cat-warning.png';
                 document.getElementById('text-stage1').innerHTML = "<span style='color:#ff4757'>[전사 오류!]</span> 치명적인 오류입니다. RNA에는 티민(T)이 존재하지 않습니다. 아데닌(A)과 짝을 이루는 RNA 염기가 무엇인지 다시 떠올려 보십시오.";
             }
@@ -224,11 +267,11 @@
 
         function checkStage2(answer) {
             if (answer === 'correct') {
-                const successMsg = "정확합니다! 화학 반응의 핵심을 완벽히 꿰뚫어 보셨네요.<br>반응성이 더 큰 <b>구리(Cu)가 스스로 전자를 내어놓고 '산화'</b>되면서 수용액이 푸르게 변하고, 그 전자를 받은 은 이온이 환원되어 앰플 표면에 성공적으로 무균 코팅을 형성했습니다!<br><br>산화와 환원이 동시에 일어나는 원리를 이용한 완벽한 조치입니다. 이제 최종 결재가 기다리는 B3 최고 보안 통제실로 향할 시간입니다.";
-                showClearScreen(successMsg, 'stage3-scene');
+                const successMsg = "정답! 화학 반응의 핵심을 완벽히 꿰뚫어 보셨네요.<br>반응성이 더 큰 <b>구리(Cu)가 스스로 전자를 내어놓고 '산화'</b>되면서 수용액이 푸르게 변하고, 그 전자를 받은 은 이온이 환원되어 앰플 표면에 무균 코팅을 형성했습니다!<br><br>산화와 환원의 동시성을 이용한 완벽한 조치입니다. 이제 최종 결재가 기다리는 통제실로 향할 시간입니다.";
+                showClearScreen(successMsg, 'stage3-scene', 'images/bg-stage3.jpg', 'B3 최고 보안 통제실');
             } else {
                 document.getElementById('cat-stage2').src = 'images/cat-warning.png';
-                document.getElementById('text-stage2').innerHTML = "<span style='color:#ff4757'>[실험 실패!]</span> 은 이온($Ag^+$)은 구리가 내어놓은 전자를 '얻어서' 환원되는 물질입니다. 누가 전자를 잃고 산화되는지 이온화 경향을 다시 계산하십시오.";
+                document.getElementById('text-stage2').innerHTML = "<span style='color:#ff4757'>[실험 실패!]</span> 은 이온($Ag^+$)은 구리가 내어놓은 전자를 '얻어서' 환원되는 물질입니다. 누가 전자를 잃고 산화되는지 계산하십시오.";
             }
         }
 
